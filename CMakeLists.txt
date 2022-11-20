@@ -1,0 +1,18 @@
+cmake_minimum_required(VERSION 3.10)
+
+
+if(NOT CMAKE_BUILD_TYPE)
+  set(CMAKE_BUILD_TYPE Release)
+endif()
+
+set(CMAKE_CXX_FLAGS "-Wall -Wextra -Wc++11-extensions")
+set(CMAKE_CXX_FLAGS_DEBUG "-g -Wc++11-extensions")
+set(CMAKE_CXX_FLAGS_RELEASE "-Os -Wc++11-extensions")
+set (CMAKE_CXX_STANDARD 14)
+add_definitions(-w) 
+
+# set the project name
+project(AoC)
+
+# add the executable
+add_executable(entry entry.cpp)
