@@ -25,7 +25,7 @@ using std::chrono::nanoseconds;
 typedef void (*dayFunction)(std::vector<std::string>&, result&);
 dayFunction functptr[] = {
     &day1,
-    // &day2,
+    &day2,
     // &day3,
     // &day4,
     // &day5, 
@@ -99,6 +99,12 @@ bool shouldTest = false;
 
 void parseArgs(int argCount, char * argv[]) {
 
+    if (argCount == 1) { 
+        std::cout << "No args present, running latest day" << '\n'; 
+        day = countof(functptr);
+        return;
+    }
+
     for (int i =1; i < argCount; i++){
         std::string s(argv[i]);
 
@@ -112,18 +118,18 @@ void parseArgs(int argCount, char * argv[]) {
         else if (s.rfind("--runs=", 0) == 0) runs = std::stoi(s.substr(7));
         else {
             std::cout << "Invalid arg: " << s << '\n';
-            throw 1;
+            throw 1; // TODO, probably doesn't even work
         }
     }
 }
 
 
-void runSingle(std::vector<std::string> &lines, dayFunction fn) {
+void runSingle(std::vector<std::string> lines, dayFunction fn) {
     cout << "Running day " << day << ": \n";
     result dayResult;
 
     auto t1 = high_resolution_clock::now();
-        fn(lines, dayResult); 
+    fn(lines, dayResult); 
     auto t2 = high_resolution_clock::now();
 
     auto ms_int = (duration_cast<nanoseconds>(t2 - t1));
@@ -154,7 +160,6 @@ void debugFunc() {
 }
 
 void run(int argc, char * argv[]){
-    if (argc == 1) { std::cout << "Not enough args" << '\n'; return; } 
     parseArgs(argc, argv);
 
     if (shouldTest){
@@ -176,8 +181,25 @@ void run(int argc, char * argv[]){
     }
 }
 
+void runDay2Bytes(){
+    std::string s = getFileAsString("./inputs/day2.txt");
+
+    result dayResult;
+
+    auto t1 = high_resolution_clock::now();
+    day2Bytes(s, dayResult); 
+    auto t2 = high_resolution_clock::now();
+
+    auto ms_int = (duration_cast<nanoseconds>(t2 - t1));
+    log_result(dayResult, ms_int);
+}
+
 
 int main(int argc, char * argv[]) {
+
+    //std::string s = getFileAsString("./inputs/day2.txt");
+
+    //runDay2Bytes();
 
     run (argc, argv);
     // debugFunc();
