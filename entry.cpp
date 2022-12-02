@@ -1,6 +1,7 @@
 #include <iostream>
 #include <chrono>
 
+#include <boost/algorithm/string.hpp>
 #include "src/test.h"
 #include "src/result.h"
 #include "src/readFile.h"
@@ -15,14 +16,17 @@
 
 using namespace std;
 
+// TODO this is probably bad
 using std::chrono::high_resolution_clock;
 using std::chrono::duration_cast;
 using std::chrono::duration;
 using std::chrono::milliseconds;
 using std::chrono::nanoseconds;
 
+#define countof(a) (sizeof(a) / sizeof(*(a)))
 
 typedef void (*dayFunction)(std::vector<std::string>&, result&);
+
 dayFunction functptr[] = {
     &day1,
     &day2,
@@ -67,8 +71,6 @@ void log_result(result res, std::chrono::nanoseconds time){
     cout << "\t Took time: " << time.count() << "ns" << endl;
 }
 
-#define countof(a) (sizeof(a) / sizeof(*(a)))
-
 void runAllDays() {
     std::cout << "Running all present days: " << countof(functptr) << '\n';
     for (int i =0; i < countof(functptr); i++ ){
@@ -101,6 +103,17 @@ void parseArgs(int argCount, char * argv[]) {
 
     if (argCount == 1) { 
         std::cout << "No args present, running latest day" << '\n'; 
+        auto end = std::chrono::system_clock::now();
+        std::time_t end_time = std::chrono::system_clock::to_time_t(end);
+        std::string s = std::ctime(&end_time);
+
+        vector<string> strs;
+        boost::split(strs,s, boost::is_any_of(" "));
+        for (int i=0; i < strs.size(); i++){
+            std::cout << strs[i] << " ";
+        }
+
+        std::cout << " \n day: " << strs[2] << '/n';
         day = countof(functptr);
         return;
     }
@@ -122,8 +135,7 @@ void parseArgs(int argCount, char * argv[]) {
         }
     }
 }
-
-
+ 
 void runSingle(std::vector<std::string> lines, dayFunction fn) {
     cout << "Running day " << day << ": \n";
     result dayResult;
@@ -181,26 +193,7 @@ void run(int argc, char * argv[]){
     }
 }
 
-void runDay2Bytes(){
-    std::string s = getFileAsString("./inputs/day2.txt");
-
-    result dayResult;
-
-    auto t1 = high_resolution_clock::now();
-    day2Bytes(s, dayResult); 
-    auto t2 = high_resolution_clock::now();
-
-    auto ms_int = (duration_cast<nanoseconds>(t2 - t1));
-    log_result(dayResult, ms_int);
-}
-
-
 int main(int argc, char * argv[]) {
-
-    //std::string s = getFileAsString("./inputs/day2.txt");
-
-    //runDay2Bytes();
-
     run (argc, argv);
     // debugFunc();
 

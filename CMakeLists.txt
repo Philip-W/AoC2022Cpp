@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.10)
 
 
+
+
 if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE Release)
 endif()
@@ -14,5 +16,10 @@ add_definitions(-w)
 # set the project name
 project(AoC)
 
+
+find_package(Boost 1.80 COMPONENTS program_options REQUIRED)
+
 # add the executable
 add_executable(entry entry.cpp)
+
+target_link_libraries(entry Boost::program_options)
