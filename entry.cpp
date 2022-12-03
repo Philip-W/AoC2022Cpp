@@ -30,7 +30,7 @@ typedef void (*dayFunction)(std::vector<std::string>&, result&);
 dayFunction functptr[] = {
     &day1,
     &day2,
-    // &day3,
+    &day3,
     // &day4,
     // &day5, 
     // &day6,
