@@ -164,7 +164,7 @@ void runMultiple(int runs, std::vector<std::string> &lines, dayFunction fn) {
 
 
 void debugFunc() {
-    day = 1; // Change this as needed
+    day = 3; // Change this as needed
     std::string fileName = "./inputs/day" + std::to_string(day) + ".txt";
     std::vector<std::string> input = getFileContent(fileName);
     auto fn = (*functptr[day - 1]);
@@ -195,7 +195,7 @@ void run(int argc, char * argv[]){
 
 int main(int argc, char * argv[]) {
     run (argc, argv);
-    // debugFunc();
+    //debugFunc();
 
     return 0;
 }

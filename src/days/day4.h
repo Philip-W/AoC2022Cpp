@@ -30,10 +30,6 @@ void day4(std::vector<std::string> &lines, result &res) {
             }
 
         }
-
-        // bool p1 = (nums[0] <= nums[2] && currentNum <= nums[1] ) |  (nums[2] <= nums[0] && nums[1] <= currentNum);
-        // bool p2 = (nums[0] <= nums[2] && nums[2] <= nums[1]) | (nums[0] <= currentNum && currentNum <= nums[1] );
-
         res.intResult1 += (nums[0] <= nums[2] && currentNum <= nums[1] ) |  (nums[2] <= nums[0] && nums[1] <= currentNum);
         res.intResult2 += (nums[0] <= nums[2] && currentNum <= nums[1] ) |  (nums[2] <= nums[0] && nums[1] <= currentNum) | 
                  (nums[0] <= nums[2] && nums[2] <= nums[1]) | (nums[0] <= currentNum && currentNum <= nums[1] );
