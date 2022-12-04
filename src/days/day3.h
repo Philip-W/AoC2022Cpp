@@ -5,32 +5,12 @@
 #include <cmath>
 
 
-long handleNumber(std::string &line, int &part1Sol){    
-    long seen = 0;
-    bool search = 1;
-    // first half
-    for (int j = 0; j < line.size() / 2; j++){ 
-        seen |= (1L << (line[j] - 'A'));
-    }
+const int scores[] = {
+    27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50,
+    51, 52, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
+    20, 21, 22, 23, 24, 25, 26, 0, 0, 0, 0, 0, 0,
+};
 
-    long result = seen;
-    // second half
-    for (int j = line.size() / 2; j < line.size(); j++){ 
-
-        bool bitSet =  search && (seen & ( 1L << (line[j] - 'A')));
-        if (bitSet) {
-            int score = line[j] - 'a' + 1;
-            //score = (-(score < 0) & line[j] - 'A' + 27) | (-(score > 0) & score);
-            if (score < 0) score = line[j] - 'A' + 27;
-            part1Sol += score;
-            search = !search;
-        };
-
-        result |= (1L << (line[j] - 'A'));
-    }
-
-    return result;
-}
 
 int isPowerOfTwo(long n){ return n && (!(n & (n - 1))); }
 
@@ -52,6 +32,30 @@ int findPosition(long n){
     return pos;
 }
 
+long handleNumber(std::string &line, int &part1Sol){    
+
+    long firstHalf = 0;
+    bool search = 1;
+    // first half
+    for (int j = 0; j < line.size() / 2; j++){ 
+        firstHalf |= (1L << (line[j] - 'A'));
+    }
+
+
+    long secondHalf = 0;
+    // second half
+    for (int j = line.size() / 2; j < line.size(); j++){ secondHalf |= (1L << (line[j] - 'A')); }
+
+
+    int shared = firstHalf & secondHalf;
+    //  std::cout << "bruh" << '\n';
+    int location = findPosition(shared);
+
+    //std::cout<< "hello" << "\n";
+    part1Sol += scores[location];
+    return (firstHalf | secondHalf);
+}
+
 void day3(std::vector<std::string> &lines, result &res) {
     res.intResult1 = 0;
     res.intResult2 = 0;
@@ -66,14 +70,15 @@ void day3(std::vector<std::string> &lines, result &res) {
         long line2 = handleNumber(lines[i+1], part1);
         long line3 = handleNumber(lines[i+2], part1);
 
-        long shared = line1 & line2 & line3;
-
-        char num =  findPosition(shared) + 'A';
+        //long shared = line1 & line2 & line3;
 
 
-        int score =  num  - 'a';
-        if (score < 0) score = num - 'A' + 26;
-        part2 += score;
+        // char num =  findPosition(shared) + 'A';
+
+
+        // int score =  num  - 'a';
+        // if (score < 0) score = num - 'A' + 26;
+        // part2 += score;
     }
 
 
