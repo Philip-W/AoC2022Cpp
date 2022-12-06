@@ -32,8 +32,8 @@ dayFunction functptr[] = {
     &day2,
     &day3,
     &day4,
-    // &day5, 
-    // &day6,
+    &day5, 
+    &day6,
     // &day7,
     // &day8    
 };
@@ -56,6 +56,14 @@ void log_result(result res, std::chrono::nanoseconds time){
     
     if (res.longResult2){
         cout << "\t Part 2 result: " << res.longResult2 << endl;
+    }
+
+    if (res.stringResult1 != ""){
+        cout << "\t Part 1 result: " << res.stringResult1 << endl;
+    }
+    
+    if (res.stringResult2 != ""){
+        cout << "\t Part 2 result: " << res.stringResult2 << endl;
     }
 
     if (time.count() > 1000000){
@@ -107,13 +115,13 @@ void parseArgs(int argCount, char * argv[]) {
         std::time_t end_time = std::chrono::system_clock::to_time_t(end);
         std::string s = std::ctime(&end_time);
 
-        vector<string> strs;
-        boost::split(strs,s, boost::is_any_of(" "));
-        for (int i=0; i < strs.size(); i++){
-            std::cout << strs[i] << " ";
-        }
+        // vector<string> strs;
+        // boost::split(strs,s, boost::is_any_of(" "));
+        // for (int i=0; i < strs.size(); i++){
+        //     std::cout << strs[i] << " ";
+        // }
 
-        std::cout << " \n day: " << strs[2] << '/n';
+        //std::cout << " \n day: " << strs[2] << '/n';
         day = countof(functptr);
         return;
     }
@@ -164,7 +172,7 @@ void runMultiple(int runs, std::vector<std::string> &lines, dayFunction fn) {
 
 
 void debugFunc() {
-    day = 3; // Change this as needed
+    day = 5; // Change this as needed
     std::string fileName = "./inputs/day" + std::to_string(day) + ".txt";
     std::vector<std::string> input = getFileContent(fileName);
     auto fn = (*functptr[day - 1]);

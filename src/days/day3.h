@@ -15,16 +15,15 @@ const int scores[] = {
 inline long handleNumber(std::string &line, int &part1Sol){    
 
     long firstHalf = 0;
-    bool search = 1;
+
     // first half
     for (int j = 0; j < line.size() / 2; j++){ 
         firstHalf |= (1L << (line[j] - 'A'));
     }
+
     long secondHalf = 0;
     // second half
-    
     for (int j = line.size() / 2; j < line.size(); j++){ 
-        //std::cout << (line[j]) << '\n';
         secondHalf |= (1L << (line[j] - 'A')); 
     }
 
