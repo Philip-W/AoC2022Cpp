@@ -3,17 +3,7 @@
 #include <string>
 #include <vector>
 #include <cmath>
-
-
-// TODO: handle negatives
-inline int parseInt(std::string &s) {
-    int result = 0;
-    for (char const &c: s) {
-        result *= 10;
-        result += c - '0';
-    }
-    return result;
-}
+#include "../Utils/numbers.h"
 
 
 void day1Branchless(std::vector<std::string> &lines, result &res) {

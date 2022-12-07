@@ -6,28 +6,28 @@
 #include <algorithm>
 
 
-inline int findWindowStart(std::string &s, int size){
+int findWindowStart(std::string &s, int size){
     uint32_t seenNum = 0;
 
     int i = 0;
     int j = 0;
-    while(j < i + size){
-        if ((seenNum & (1 << s[j] - 'a'))){
+    while(true){
+        if ((seenNum & (1 << (s[j] - 'a')))){
             i++;
             j = i;
             seenNum = 0;
         }
         seenNum |= (1 << s[j] - 'a'); 
         j++;
+        if (j == i + size) return (i + size);
     }
-
-    return (i + size);
 }
 
 void day6(std::vector<std::string> &lines, result &res) {
     res.intResult1 = findWindowStart(lines[0], 4);
     res.intResult2 = findWindowStart(lines[0], 14);
 }
+
 
 // Running day 6: 
 //          Part 1 result: 1542

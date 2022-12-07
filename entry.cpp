@@ -34,7 +34,7 @@ dayFunction functptr[] = {
     &day4,
     &day5, 
     &day6,
-    // &day7,
+    &day7,
     // &day8    
 };
 
@@ -172,7 +172,7 @@ void runMultiple(int runs, std::vector<std::string> &lines, dayFunction fn) {
 
 
 void debugFunc() {
-    day = 5; // Change this as needed
+    day = 7; // Change this as needed
     std::string fileName = "./inputs/day" + std::to_string(day) + ".txt";
     std::vector<std::string> input = getFileContent(fileName);
     auto fn = (*functptr[day - 1]);

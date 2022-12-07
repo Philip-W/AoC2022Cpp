@@ -95,8 +95,6 @@ void day5(std::vector<std::string> &lines, result &res) {
 
     res.stringResult1 = res1;
     res.stringResult2 = res2;
-
-
 }
 
 
