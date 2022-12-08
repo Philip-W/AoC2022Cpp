@@ -12,7 +12,7 @@
 
 
 struct Directory {
-    std::string name;
+    std::string_view name;
     std::vector<Directory*> dirs;
     int size;
     Directory *parent; 
@@ -32,7 +32,7 @@ struct Directory {
         return total;
     }
 
-    Directory* moveDir(std::string s) {
+    Directory* moveDir(std::string_view s) {
         for (Directory* dir: dirs){
             if (s.compare(dir->name) == 0){ 
                 return dir; 
@@ -42,7 +42,7 @@ struct Directory {
         return nullptr;
     }
 
-    void addDirectory(std::string &name){
+    void addDirectory(std::string_view &name){
         Directory* d = new Directory();
         d->name = name.substr(4);
         d->parent = this;
@@ -98,27 +98,28 @@ void day7(std::vector<std::string> &lines, result &res) {
     Directory* current = base;
 
     for(int i = 1; i < lines.size(); i++){
-        std::string line = lines[i];
-        //std::cout << line << '\n';
-        if (line[0] == '$'){
-            // is command
-            if (line.compare("$ cd ..") == 0){ current = current->parent; continue;}
+        std::string_view line = std::string_view(lines[i]);
 
-            if (line.rfind("$ ls", 0) == 0) continue;
-            else {
-                current = current->moveDir(line.substr(5)); 
-            }
-            continue;
-        }
-        if (line.rfind("dir ", 0) == 0){ 
+        // is command
+        if (line[0] == '$' && line[5] == '.'){ current = current->parent; continue;}
+        if (line[0] == '$' && line[2] == 'l') continue;
+        if (line[0] == '$') {current = current->moveDir(line.substr(5)); continue; }
+
+        if (line[0] == 'd'){ 
             //std::cout << "is dir " << line.substr(4) <<  '\n';
             current->addDirectory(line);
             continue;
         }  
         else {
             // must be a file
-            int space = line.find(' ');
-            current->addFile(parseIntUntil(line, space));
+            int space = 0;
+            int j =0;
+            while (line[j] != ' '){
+                space *= 10;
+                space += line[j] - '0';
+                j++;
+            }
+            current->addFile(space);
         }
     }
 
@@ -128,6 +129,53 @@ void day7(std::vector<std::string> &lines, result &res) {
 
     delete base;
 }
+
+
+// void day7(std::vector<std::string> &lines, result &res) {
+//     std::vector<std::string> currentPaths = {"/"};
+//     std::unordered_map<std::string_view, int> dirSizes;
+
+//     for (int i =1; i < lines.size(); i++){
+//         std::string_view line = lines[i];
+//         //std::cout << line << '\n';
+//         if (line[0] == '$'){
+//             // is command
+//             if (line.compare("$ cd ..") == 0){ 
+//                 currentPaths.pop_back();
+//                 continue;
+//             }
+
+//             if (line.rfind("$ ls", 0) == 0) continue;
+//             else {
+//                 // is Cd
+//                 currentPaths.push_back(currentPaths.back() + std::string(line.substr(5)));
+//             }
+//             continue;
+//         }
+//         if (line.rfind("dir ", 0) == 0){ 
+//             //std::cout << "is dir " << line.substr(4) <<  '\n';
+//             dirSizes[line.substr(4)] = 0;
+//             continue;
+//         }  
+//         else {
+//             // must be a file
+//             int space = line.find(' ');
+//             int size = parseIntUntil(line, space);
+//             for (int j =0; j< currentPaths.size(); j++){
+//                 dirSizes[currentPaths[j]] += size;
+//             }
+//         }
+//     }
+
+//     res.intResult1 = 0;
+//     res.intResult2 = 100000000;
+//     int target =  30000000 - (70000000 - dirSizes["/"]);
+//     std::cout << target << "\n";
+//     for (auto kv : dirSizes){
+//         if (kv.second < 100000) res.intResult1 += kv.second;
+//         if (kv.second > target && kv.second < res.intResult2) res.intResult2 = kv.second;
+//     }
+// }
 
 // Running day 7: 
 //          Part 1 result: 1582412

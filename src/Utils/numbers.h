@@ -22,3 +22,14 @@ inline int parseIntUntil(std::string &s, int until) {
     }
     return result;
 }
+
+// TODO: handle negatives
+inline int parseIntUntil(std::string_view &s, int until) {
+    int result = 0;
+
+    for (int i =0; i < until; i++){
+        result *= 10;
+        result += s[i] - '0';
+    }
+    return result;
+}
