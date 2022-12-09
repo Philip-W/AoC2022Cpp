@@ -16,33 +16,37 @@ struct Directory {
     std::vector<Directory*> dirs;
     int size;
     Directory *parent; 
-    
+    int totalSize;
+
     ~Directory(){
-        for (Directory* d : dirs){
-            delete d;
+        for (int i =0; i < dirs.size(); i++){
+            delete dirs[i];
         }
     }
 
     int getSize() {
         int total = this->size;
-        for (Directory* dir: dirs){
-            total += dir->getSize();
+        for (int i =0; i < dirs.size(); i++){
+            total += dirs[i]->getSize();
         }
-
+        this->totalSize = total;
         return total;
     }
 
-    Directory* moveDir(std::string_view s) {
-        for (Directory* dir: dirs){
-            if (s.compare(dir->name) == 0){ 
-                return dir; 
+    inline Directory* moveDir(std::string_view &s) {
+        auto goal = s.substr(5);
+        //for (Directory* dir: dirs){
+        for (int i =0; i < dirs.size(); i++){
+
+            if (goal.compare(dirs[i]->name) == 0){ 
+                return dirs[i]; 
             }
         }
         std::cout << "EROR DIR NOT FOUND"<<  '\n';
         return nullptr;
     }
 
-    void addDirectory(std::string_view &name){
+    inline void addDirectory(std::string_view &name){
         Directory* d = new Directory();
         d->name = name.substr(4);
         d->parent = this;
@@ -51,44 +55,32 @@ struct Directory {
 
     void addFile(int size){ 
         this->size += size;
+        //Directory* p = this->parent;
+        //while (p != nullptr) { p->totalSize += size; p = p->parent; }
     }
 
     int dirSizesBelow100k(){
-        int res = 0;
-        for (auto d : dirs){
-            res += d->dirSizesBelow100k();
+        int res = this->totalSize & -(this->totalSize < 100000);
+        for (int i =0; i < dirs.size(); i++){
+            res += dirs[i]->dirSizesBelow100k();
         }
 
-        if (this->getSize() < 100000) res += this->getSize();
+        //if (this->totalSize < 100000) res += this->totalSize;
         return res;
     }
 
     int getBestDeletionTarget(int target){
-        if (dirs.empty()) return this->getSize();
+        int res = this->totalSize;
 
-        int res = this->getSize();
-
-        for (auto d : dirs){
-            int nextbest = d->getBestDeletionTarget(target);
-            bool isUseful =  target < nextbest;
-            if (isUseful && (nextbest < res)){ 
+        for (int i =0; i < dirs.size(); i++){
+            int nextbest = dirs[i]->getBestDeletionTarget(target);
+            if (target < nextbest && (nextbest < res)){ 
                 res = nextbest;
             }
         }
 
         return res;
     }
-
-    std::vector<int> getSizes(){
-        std::vector<int>  res;
-        res.push_back(this->getSize());
-        for (auto d : dirs){    
-            std::vector<int> children = (d->getSizes());
-            res.insert(res.end(), children.begin(), children.end());
-        }
-        return res;
-    }
-
 };
 
 
@@ -97,17 +89,33 @@ void day7(std::vector<std::string> &lines, result &res) {
     base->name = "/";
     Directory* current = base;
 
+    std::string_view line;
     for(int i = 1; i < lines.size(); i++){
-        std::string_view line = std::string_view(lines[i]);
+        line = std::string_view(lines[i]);
 
         // is command
-        if (line[0] == '$' && line[5] == '.'){ current = current->parent; continue;}
-        if (line[0] == '$' && line[2] == 'l') continue;
-        if (line[0] == '$') {current = current->moveDir(line.substr(5)); continue; }
+        if (line[0] == '$') { 
+            if (line[5] == '.'){ current = current->parent; continue;}
+            if (line[2] == 'l') continue;
+
+            for (int i =0; i < current->dirs.size(); i++){
+                if (line.substr(5).compare(current->dirs[i]->name) == 0){ 
+                    current = current->dirs[i]; 
+                    break;
+                }
+            }
+
+            continue;
+        }
 
         if (line[0] == 'd'){ 
             //std::cout << "is dir " << line.substr(4) <<  '\n';
-            current->addDirectory(line);
+            //current->addDirectory(line);
+
+            Directory* d = new Directory();
+            d->name = line.substr(4);
+            d->parent = current;
+            current->dirs.push_back(d);
             continue;
         }  
         else {
@@ -119,12 +127,13 @@ void day7(std::vector<std::string> &lines, result &res) {
                 space += line[j] - '0';
                 j++;
             }
-            current->addFile(space);
+            current->size += space;
         }
     }
 
+    base->getSize();
     res.intResult1 = base->dirSizesBelow100k();
-    int target =  30000000 - (70000000 - base->getSize());
+    int target =  30000000 - (70000000 - base->totalSize);
     res.intResult2 = base->getBestDeletionTarget(target);
 
     delete base;

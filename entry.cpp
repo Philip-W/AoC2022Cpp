@@ -13,6 +13,7 @@
 #include "src/days/day6.h"
 #include "src/days/day7.h"
 #include "src/days/day8.h"
+#include "src/days/day9.h"
 
 using namespace std;
 
@@ -35,7 +36,8 @@ dayFunction functptr[] = {
     &day5, 
     &day6,
     &day7,
-    &day8    
+    &day8,
+    &day9
 };
 
 
@@ -81,6 +83,7 @@ void log_result(result res, std::chrono::nanoseconds time){
 
 void runAllDays() {
     std::cout << "Running all present days: " << countof(functptr) << '\n';
+    std::chrono::nanoseconds total;
     for (int i =0; i < countof(functptr); i++ ){
         std::cout << "Day " << i + 1 << ":" << '\n';
         result res;
@@ -98,7 +101,12 @@ void runAllDays() {
 
         auto ms_int = duration_cast<nanoseconds>(t2 - t1);
         log_result(res, ms_int);
+        total += ms_int;
     }
+
+    printf("\n \nTotal time for all days: %.2fμs | %.2fms   \n", total.count() / 1000.0,  total.count() / 1000000.0);
+
+
 }
 
 
@@ -172,7 +180,7 @@ void runMultiple(int runs, std::vector<std::string> &lines, dayFunction fn) {
 
 
 void debugFunc() {
-    day = 7; // Change this as needed
+    day = 9; // Change this as needed
     std::string fileName = "./inputs/day" + std::to_string(day) + ".txt";
     std::vector<std::string> input = getFileContent(fileName);
     auto fn = (*functptr[day - 1]);

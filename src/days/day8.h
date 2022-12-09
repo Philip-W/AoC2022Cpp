@@ -7,13 +7,13 @@
 
 
 
-void markSeen(int startX, int startY, int xChange, int yChange, std::vector<std::vector<bool>> &markers, std::vector<std::string> &map){
+void markSeen(int startX, int startY, int xChange, int yChange, std::bitset<100*100> &markers, std::vector<std::string> &map){
     int currentX =startX;
     int currentY =startY;
     int highestSoFar = -1;
     while (0 <= currentY && currentY <= map.size() - 1 && 0 <=currentX && currentX <= map[0].size() - 1){
         if (map[currentY][currentX] > highestSoFar){
-            markers[currentY][currentX] = true;
+            markers[currentX * map.size() + currentY] = true;
             highestSoFar = map[currentY][currentX];
         }
 
@@ -21,87 +21,131 @@ void markSeen(int startX, int startY, int xChange, int yChange, std::vector<std:
         currentY += yChange;
 
 
-//        if (highestSoFar)
+        if (highestSoFar == '9') return;
     }
 }
 
 int part1(std::vector<std::string> &lines ){
-    //bool seen[][]= new bool[lines.size()][lines[0].size()]{};
-    std::vector<std::vector<bool>> seen;
-    for (int i=0; i < lines.size(); i++){
-        seen.push_back(std::vector<bool>(lines[0].size()));
-    }
-        // top to bootom sweep
+    std::bitset<100*100> seen;
+
+    // Look down top row
     for (int i =0;i < lines[0].size(); i++){
-        markSeen(i, 0, 0, 1, seen, lines);
+        int highestSoFar = -1;
+        for (int j =0; j < lines.size(); j++){
+            if (lines[j][i] > highestSoFar){
+                seen[i * lines.size() + j] = true;
+                highestSoFar = lines[j][i];
+            }
+            if (highestSoFar == '9') break;
+        }
     }
 
-    // bottom to top sweep
+    // Look up from the bottom rows
     for (int i =0;i < lines[0].size(); i++){
-        markSeen(i, lines.size() - 1, 0, -1, seen, lines);
+        int highestSoFar = -1;
+        for (int j =lines.size() -1; j >=0; j--){
+            if (lines[j][i] > highestSoFar){
+                seen[i * lines.size() + j] = true;
+                highestSoFar = lines[j][i];
+            }
+            if (highestSoFar == '9') break;
+        }
     }
 
-    // left to right downward sweep
+    // Look at the left side
     for (int i =0;i < lines[0].size(); i++){
-        markSeen(0, i, 1, 0, seen, lines);
+        int highestSoFar = -1;
+        for (int j = 0; j < lines[0].size(); j++){
+            if (lines[i][j] > highestSoFar){
+                seen[j * lines.size() + i] = true;
+                highestSoFar = lines[i][j];
+            }
+            if (highestSoFar == '9') break;
+        }        
     }
 
-    //  right to left downward sweep
+    //  Look at the right side
     for (int i = 0;i < lines[0].size(); i++){
-        markSeen(lines[0].size() -1, i, -1, 0, seen, lines);
-    }
+        int highestSoFar = -1;
+        for (int j = lines[0].size() - 1; j >=0; j--){
+            if (lines[i][j] > highestSoFar){
+                seen[j * lines.size() + i] = true;
+                highestSoFar = lines[i][j];
+            }
+            if (highestSoFar == '9') break;
+        }     
 
-    int count = 0;
-    for (int i = 0; i < lines.size(); i++){
-        for (int j= 0; j < lines[0].size(); j++){
-            count += seen[i][j];
-        }
     }
-    return count;
+    return seen.count();
 }
 
 
+//inline int part2(char (&lines)[100][100], int rows, int cols) {
+inline int part2(std::vector<std::string> &lines, int rows, int cols) {
+    int highestScore = -1;
 
-int scoreForTreeInDirection(int x, int y, int xChange, int yChange, std::vector<std::string> &map){
-    int currentX =x + xChange;
-    int currentY = y + yChange;
-    int canSeeInDirection = 0;
-    int thisHeight = map[y][x];
+    for (int i = 1; i < rows -1; i++){
+        for (int j =1; j < cols -1; j++){
 
-    while (0 <= currentY && currentY <= map.size() - 1 && 0 <=currentX && currentX <= map[0].size() - 1){
-        if (map[currentY][currentX] >= thisHeight){
-            canSeeInDirection++;
-            break;
+            int base = lines[i][j];
+            int a = 0;
+            int currentX = j + 1;
+            int currentY = i + 1;
+
+            // Go right
+            while (currentX <= cols - 1){
+                if (lines[i][currentX] < base) a++;
+                else { a++; break;}
+                currentX++;
+            }
+
+            int b = 0;
+            currentX = j - 1;
+            // Go left
+            while (currentX >= 0) {
+                if (lines[i][currentX] < base) b++;
+                else { b++; break; }
+                currentX--;
+            }
+
+            if (a * b * ((i -1 ) * (cols - i)) < highestScore){continue;}
+
+            // Go down
+            int c =0;            
+            while(currentY <= rows- 1){
+                if (lines[currentY][j] < base) c++;
+                else { c++; break;}
+                currentY++;
+            }
+
+            if (a * b * (c*i - c ) < highestScore){continue;}
+            
+            int d = 0;
+            currentY = i - 1;
+            // Go up
+            while(currentY >= 0){
+                if (lines[currentY][j] < base) d++;
+                else { d++; break;}
+                currentY--;
+            }
+
+            highestScore = std::max(highestScore, a*b*c*d);
         }
-        canSeeInDirection += 1;
-        currentX += xChange;
-        currentY += yChange;
     }
 
-
-    return canSeeInDirection;   
+    return highestScore; 
 }
+
 void day8(std::vector<std::string> &lines, result &res) {
     //bool seen[][]= new bool[lines.size()][lines[0].size()]{};
 
+    //std::cout << sizeof(intmax_t) << '\n';
+
+    //__int128 x = 1232134;
+    //std::cout << sizeof(x) << '\n';
+
     res.intResult1 = part1(lines);
-    int highestScore = -1;
-
-    for (int i =0; i < lines.size(); i++){
-        for (int j =0; j < lines[0].size(); j++){
-            // int upScore = scoreForTreeInDirection(j, i, 0, -1, lines);
-            // int downScore = scoreForTreeInDirection(j, i, 0, 1, lines);
-            // int leftScore = scoreForTreeInDirection(j, i, -1, 0, lines);
-            // int rightScore = scoreForTreeInDirection(j, i, 1, 0, lines);
-
-            highestScore = std::max(highestScore, scoreForTreeInDirection(j, i, 0, -1, lines) * 
-                             scoreForTreeInDirection(j, i, 0, 1, lines) * 
-                             scoreForTreeInDirection(j, i, -1, 0, lines) *  scoreForTreeInDirection(j, i, 1, 0, lines));
-
-        }
-    }
-
-    res.intResult2 = highestScore; 
+    res.intResult2 = part2(lines, lines.size(), lines[0].size());
 }
 
 
