@@ -41,7 +41,7 @@ dayFunction functptr[] = {
 };
 
 
-void log_result(result res, std::chrono::nanoseconds time){
+void log_result(result res, float time){
     //std::cout << "Time: " time.count() << "ns\n";
 
     if (res.intResult1){
@@ -68,17 +68,18 @@ void log_result(result res, std::chrono::nanoseconds time){
         cout << "\t Part 2 result: " << res.stringResult2 << endl;
     }
 
-    if (time.count() > 1000000){
-        printf("\t Took time: %.2fms \n", time.count() / 1000000.0);
+    if (time < 0) return;
+    if (time > 1000000){
+        printf("\t Took time: %.2fms \n", time/ 1000000.0);
         return;
     }
     
-    if (time.count() > 1000){
-        printf("\t Took time: %.2fμs \n", time.count() / 1000.0);
+    if (time > 1000){
+        printf("\t Took time: %.2fμs \n", time / 1000.0);
         return;
     }
 
-    cout << "\t Took time: " << time.count() << "ns" << endl;
+    cout << "\t Took time: " << time << "ns" << endl;
 }
 
 void runAllDays() {
@@ -100,13 +101,11 @@ void runAllDays() {
         auto t2 = high_resolution_clock::now();
 
         auto ms_int = duration_cast<nanoseconds>(t2 - t1);
-        log_result(res, ms_int);
+        log_result(res, ms_int.count());
         total += ms_int;
     }
 
     printf("\n \nTotal time for all days: %.2fμs | %.2fms   \n", total.count() / 1000.0,  total.count() / 1000000.0);
-
-
 }
 
 
@@ -119,9 +118,9 @@ void parseArgs(int argCount, char * argv[]) {
 
     if (argCount == 1) { 
         std::cout << "No args present, running latest day" << '\n'; 
-        auto end = std::chrono::system_clock::now();
-        std::time_t end_time = std::chrono::system_clock::to_time_t(end);
-        std::string s = std::ctime(&end_time);
+        //auto end = std::chrono::system_clock::now();
+        //std::time_t end_time = std::chrono::system_clock::to_time_t(end);
+        //std::string s = std::ctime(&end_time);
 
         // vector<string> strs;
         // boost::split(strs,s, boost::is_any_of(" "));
@@ -161,21 +160,54 @@ void runSingle(std::vector<std::string> lines, dayFunction fn) {
     auto t2 = high_resolution_clock::now();
 
     auto ms_int = (duration_cast<nanoseconds>(t2 - t1));
-    log_result(dayResult, ms_int);
+    log_result(dayResult, ms_int.count());
 }
 
 
 void runMultiple(int runs, std::vector<std::string> &lines, dayFunction fn) {
     cout << "Running day " << day << ", " << runs << " times" << ": \n";
+    std::vector<std::chrono::nanoseconds> times;
     result dayResult;
 
-    auto t1 = high_resolution_clock::now();
-    for (int i = 0; i < runs; i++){ fn(lines, dayResult); }
-    auto t2 = high_resolution_clock::now();
+    for (int i = 0; i < runs; i++){
+        auto t1 = high_resolution_clock::now();
+        fn(lines, dayResult);
+        auto t2 = high_resolution_clock::now();
+        times.push_back(duration_cast<nanoseconds>(t2 - t1));
+    }
 
-    auto ms_int = (duration_cast<nanoseconds>(t2 - t1)) / runs;
 
-    log_result(dayResult, ms_int);
+    std::chrono::nanoseconds total;
+    for (auto t : times){
+        total += t;
+    }
+    auto mean = total / runs;
+
+    std::sort(times.begin(), times.end());
+    auto quarterPercentile = times[times.size()/ 4].count() /1000.0;
+    auto threeQuarterPercentile = times[times.size() * 3/ 4].count() / 1000.0;
+    auto median = times[times.size()/ 2].count() / 1000.0;
+
+    log_result(dayResult, -1);
+    
+    // Is microsecond
+    if (median > 1 && median < 1000){
+        std::string color = "\033[1;32m";
+        printf("\nPercentiles (25, 50, 75): %s [%.2fμs. %.2fμs, %.2fμs] \033[0m\nMean time: %s %.2fμs \033[0m\n", color.c_str(), quarterPercentile, median, threeQuarterPercentile,color.c_str(), mean.count() / 1000.0);
+        printf("\nBest/worst %s [%.2fμs, %.2fμs] \033[0m\n", color.c_str(), times.front().count() / 1000.0, times.back().count() / 1000.0);
+        return;
+    }
+
+    if (median > 1000 ){
+        median /= 1000.0;
+        quarterPercentile /= 1000.0;
+        threeQuarterPercentile /= 1000.0;
+        mean /= 1000.0;
+    
+        std::string color = "\033[1;31m";
+        printf("\nPercentiles (25, 50, 75): %s [%.2fms. %.2fms, %.2fms] \033[0m\nMean time: %s %.2fms \033[0m\n", color.c_str(), quarterPercentile, median, threeQuarterPercentile,color.c_str(), mean.count() / 1000.0);
+        return;
+    }
 }
 
 

@@ -21,15 +21,15 @@ void day9(std::vector<std::string> &lines, result &res){
     int count1 = 0;
     int count2 = 0;
 
-    std::vector<std::vector<std::bitset<200000>>> seenPart1 = { 
-        {std::bitset<200000>(), std::bitset<200000>()},
-        {std::bitset<200000>(), std::bitset<200000>()}
-    };
+    const int xOffset = 500;
+    const int yOffset = 500;
+    const int xSize = 500;
+    const int ySize = 500;
 
-    std::vector<std::vector<std::bitset<200000>>> seenPart2 = { 
-        {std::bitset<200000>(), std::bitset<200000>()},
-        {std::bitset<200000>(), std::bitset<200000>()}
-    };
+    const size_t mapSize = (xSize + xOffset) * (ySize+ yOffset);
+
+    std::bitset<mapSize> seen1;
+    std::bitset<mapSize> seen2;
 
     char direction;
     int amount;
@@ -44,34 +44,33 @@ void day9(std::vector<std::string> &lines, result &res){
             head.y += (direction == 'U') | -(direction == 'D');
             head.x += (direction == 'R') | -(direction == 'L'); 
     
-            for (int k = 1; k < knots.size(); k++){
+            for (int k = 1; k < 10; k++){
 
                 Position* lead = knots[k-1];
                 Position* follow = knots[k];
-                //bool shouldContinue = (lead->y == follow->y ) | (lead->x == follow->x);
 
-                follow->x += (lead->y == follow->y && (lead->x - follow->x) ==  2 );  // is 2 x units right
-                follow->x -= (lead->y == follow->y && (lead->x - follow->x) == -2 );  // is 2 x units left
-                follow->y += (lead->x == follow->x && (lead->y - follow->y) ==  2 );  // is 2 y units above
-                follow->y -= (lead->x == follow->x && (lead->y - follow->y) == -2 );  // is 2 y units below
+                if (std::abs(lead->x - follow->x) > 1){
+                    if (lead->x - follow->x > 0) follow->x++; else follow->x--;
+                    if (lead->y != follow->y){
+                        if (lead->y - follow->y > 0) follow->y++; else follow->y--;
+                        continue;
+                    }
+                }
 
-                //if (shouldContinue) continue;
-
-                // else is diagonal 
-                int manhatten_distance = std::abs(lead->x - follow->x) + std::abs(lead->y - follow->y);
-                if (manhatten_distance >= 3){
-                    if (lead->x > follow->x) follow->x++;
-                    else follow->x--;
-                    if (lead->y > follow->y) follow->y++;
-                    else  follow->y--;
+                if (std::abs(lead->y - follow->y) > 1){
+                    if (lead->y - follow->y > 0) follow->y++; else follow->y--;
+                    if (lead->x != follow->x){
+                        if (lead->x - follow->x > 0) follow->x++; else follow->x--;
+                    }
                 }
             }
+            
+            count1 += !seen1[((knots[1]->y + yOffset) * ySize) + (knots[1]->x + xOffset)];
+            count2 += !seen2[((knots[9]->y + yOffset) * ySize) + (knots[9]->x + xOffset)];
 
-            count1 += !seenPart1[(knots[1]->y >=0)][(knots[1]->x > 0)][std::abs(knots[1]->y) * 1000 + std::abs(knots[1]->x)];
-            count2 += !seenPart2[(knots[9]->y >=0)][(knots[9]->x > 0)][std::abs(knots[9]->y) * 1000 + std::abs(knots[9]->x)];
-            seenPart1[(knots[1]->y >=0)][(knots[1]->x > 0)][std::abs(knots[1]->y) * 1000 + std::abs(knots[1]->x)] = true; 
-            seenPart2[(knots[9]->y >=0)][(knots[9]->x > 0)][std::abs(knots[9]->y) * 1000 + std::abs(knots[9]->x)] = true; 
-        } 
+            seen1[((knots[1]->y + yOffset) * ySize) + (knots[1]->x + xOffset)] = true;
+            seen2[((knots[9]->y + yOffset) * ySize) + (knots[9]->x + xOffset)] = true;
+        }
 
     }
 
@@ -84,7 +83,7 @@ void day9(std::vector<std::string> &lines, result &res){
 //          Part 2 result: 2445
 //          Took time: 7.15ms 
 //  
-//  Best time so far 511.20us
-
+//  Best time so far 275us
+//
 
 
