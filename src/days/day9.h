@@ -46,8 +46,8 @@ void day9(std::vector<std::string> &lines, result &res){
     
             for (int k = 1; k < 10; k++){
 
-                Position* lead = knots[k-1];
-                Position* follow = knots[k];
+                Position * lead = knots[k-1];
+                Position *follow = knots[k];
 
                 if (std::abs(lead->x - follow->x) > 1){
                     if (lead->x - follow->x > 0) follow->x++; else follow->x--;

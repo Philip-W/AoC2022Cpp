@@ -14,6 +14,7 @@
 #include "src/days/day7.h"
 #include "src/days/day8.h"
 #include "src/days/day9.h"
+#include "src/days/day10.h"
 
 using namespace std;
 
@@ -37,7 +38,8 @@ dayFunction functptr[] = {
     &day6,
     &day7,
     &day8,
-    &day9
+    &day9,
+    &day10
 };
 
 
@@ -82,9 +84,25 @@ void log_result(result res, float time){
     cout << "\t Took time: " << time << "ns" << endl;
 }
 
+void log_time(float time){
+    if (time < 0) return;
+    if (time > 1000000){
+        printf("  Took time: %.2fms \n", time/ 1000000.0);
+        return;
+    }
+    
+    if (time > 1000){
+        printf("  Took time: %.2fμs \n", time / 1000.0);
+        return;
+    }
+
+    cout << "\t Took time: " << time << "ns" << endl;
+}
+
 void runAllDays() {
     std::cout << "Running all present days: " << countof(functptr) << '\n';
     std::chrono::nanoseconds total;
+    int repeats = 5000;
     for (int i =0; i < countof(functptr); i++ ){
         std::cout << "Day " << i + 1 << ":" << '\n';
         result res;
@@ -95,17 +113,17 @@ void runAllDays() {
         std::vector<std::string> input = getFileContent(fileName);
 
         auto fn = (*functptr[day - 1]);
-
+        
         auto t1 = high_resolution_clock::now();
-        fn(input, res); 
+        for (int j =0; j< repeats; j++) fn(input, res); 
         auto t2 = high_resolution_clock::now();
 
         auto ms_int = duration_cast<nanoseconds>(t2 - t1);
-        log_result(res, ms_int.count());
-        total += ms_int;
+        log_time(ms_int.count() / (repeats * 1.0));
+        total += (ms_int / repeats);
     }
 
-    printf("\n \nTotal time for all days: %.2fμs | %.2fms   \n", total.count() / 1000.0,  total.count() / 1000000.0);
+    printf("\n \nTotal time for all days (5000x per day): %.2fμs | %.2fms   \n", total.count() / 1000.0,  total.count() / 1000000.0);
 }
 
 
